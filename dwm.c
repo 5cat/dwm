@@ -222,6 +222,7 @@ static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void resizerequest(XEvent *e);
 static void restack(Monitor *m);
+static void rotatetags(const Arg *arg);
 static void run(void);
 static void scan(void);
 static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
@@ -1540,6 +1541,33 @@ restack(Monitor *m)
 	XSync(dpy, False);
 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 }
+
+void
+rotatetags(const Arg *arg)
+{
+	const int rot = abs(arg->i);
+	const unsigned int tagset = selmon->tagset[selmon->seltags];
+	unsigned int newtagset;
+
+	/* check the direction of the shift */
+	if (arg->i < 0) {
+		 /* shift tags right */
+		 newtagset = (tagset >> rot) | (tagset << (LENGTH(tags) - rot));
+	} else {
+		 /* shift tags left */
+		 newtagset = (tagset << rot) | (tagset >> (LENGTH(tags) - rot));
+	}
+
+	/* mask the tag bits */
+	newtagset &= TAGMASK;
+
+	if (newtagset) {
+		 selmon->tagset[selmon->seltags] = newtagset;
+		 focus(NULL);
+		 arrange(selmon);
+	}
+}
+
 
 void
 run(void)
