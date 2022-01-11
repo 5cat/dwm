@@ -54,3 +54,4 @@ Applied Patches
 - fullgaps
 - restartsig
 - xresources (+ live reloading)
+- fsignal
